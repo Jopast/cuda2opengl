@@ -1,17 +1,12 @@
-#include <iostream>
-#include <thread>
 #include <stdio.h>
 #include <device_launch_parameters.h>
 #include <cuda_runtime.h>
 #include "Gldisplay.h"
 
-using namespace std;
-
 FILE *infile = NULL;
 
-void test(void *args)
+void get_img(void *args)
 {
-    cout << "fsdfsf" << endl;
     GlDisplay *display = (GlDisplay *)args;
     int img_size = display->get_size() >> 1;
     int width = display->get_width();
@@ -20,6 +15,11 @@ void test(void *args)
     c_buf = (gpel_t *)malloc(img_size);
     cudaMalloc((void **)&g_buf, img_size);
     while (true){
+        lock_guard<mutex> locker(display->mutex_lock);
+        while (!display->wait_img){                        //如果未获取到图像                
+            display->m_t.wait(display->mutex_lock);        //将当前线程阻塞，注意：此时会释放锁
+        }
+
         if (fread(c_buf, 1, img_size, infile) != img_size){
             // Loop
             fseek(infile, 0, SEEK_SET);
@@ -30,10 +30,16 @@ void test(void *args)
         gpel_t *U = g_buf + width*height * sizeof(gpel_t);
         gpel_t *V = U + width*height * sizeof(gpel_t) / 4;
         display->set_img(Y, U, V);
+        cout << "aaa" << endl;
+        display->wait_img = false;          //等待显示后再读取图像
+        display->m_t.notify_all();          //通知其余阻塞的使用者可以使用了
+
     }
     cudaFree(g_buf);
     free(c_buf);
+    fclose(infile);
 }
+
 int main(int argc, char* argv[])
 {
     if ((infile = fopen("BasketballDrill_832x480_50.yuv", "rb")) == NULL){
@@ -45,13 +51,10 @@ int main(int argc, char* argv[])
     int height = 480;
     int img_size = width*height * sizeof(gpel_t) * 3 / 2;
     GlDisplay *display = new GlDisplay(&argc, argv, width, height);
-
-    thread t(test, display);
+    thread t(get_img, display);
     t.detach();
-
     display->set_framerate(20);
     display->start_display();
 
-    fclose(infile);
     return 0;
 }

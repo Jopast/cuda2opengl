@@ -2,10 +2,16 @@
 #define _GL_DISPLAY_H_
 
 #include <windows.h>
+#include <thread>
+#include <mutex> 
+#include <condition_variable>
+#include <iostream>
 #include <cuda_gl_interop.h>  
 #include "GL\freeglut.h"  
 #include "GL\glext.h"
 #include "defines.h"  
+
+using namespace std;
 
 #define GET_PROC_ADDRESS(str) wglGetProcAddress(str)
 
@@ -18,16 +24,21 @@ int gvcd_yuv2rgb(gpel_t *pYdata, gpel_t *pUdata, gpel_t *pVdata, uchar3 *OutData
 }
 #endif
 
-
 class GlDisplay
 {
 public:
     GlDisplay(int *argc, char **argv, int w, int h){
         Glinit(argc, argv, w, h);
+        wait_img = true;
         cur_dis = this;
     }
     ~GlDisplay(){
     }
+
+    mutex mutex_lock;
+    condition_variable_any m_t;     //条件变量
+    bool wait_img;
+
     int get_size(){ return img_size; }
     int get_width(){ return width; }
     int get_height(){ return height; }

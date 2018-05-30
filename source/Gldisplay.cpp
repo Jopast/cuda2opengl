@@ -39,6 +39,11 @@ void GlDisplay::Glinit(int *argc, char **argv, int w, int h)
 
 void GlDisplay::drawFunc()
 {
+    //Sleep(10);
+    lock_guard<mutex> locker(cur_dis->mutex_lock);
+    while (cur_dis->wait_img){                         //如果获取到图像                
+        cur_dis->m_t.wait(cur_dis->mutex_lock);        //将当前线程阻塞，注意：此时会释放锁
+    }
     glDrawPixels(cur_dis->width, cur_dis->height, GL_RGB, GL_UNSIGNED_BYTE, 0);
     uchar3* devPtr;
     size_t size;
@@ -49,6 +54,9 @@ void GlDisplay::drawFunc()
 
     cudaGraphicsUnmapResources(1, &cur_dis->resource, NULL);
     glutSwapBuffers();
+    cout << "bbb" << endl;
+    cur_dis->wait_img = true;           //等待下一帧图像
+    cur_dis->m_t.notify_all();          //通知其余阻塞的使用者可以使用了
 }
 
 void GlDisplay::start_display()
