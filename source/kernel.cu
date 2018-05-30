@@ -11,9 +11,9 @@ __global__ void YUV2RGBConver(gpel_t *pYdata, gpel_t *pUdata, gpel_t *pVdata, uc
 
     if (x < width && y < height){
         int Y, U, V;
-        int idx_y = y * width + x;
-        int idx_uv = (y >> 1) * (width >> 1) + (x >> 1);
-        int out_pos = (height - y) * width + x;
+        int idx_y = (height - 1 - y) * width + x;
+        int idx_uv = ((height >> 1) - 1 - (y >> 1)) * (width >> 1) + (x >> 1);
+        int out_pos = y * width + x;
         Y = pYdata[idx_y];
         U = pUdata[idx_uv] - 128;
         V = pVdata[idx_uv] - 128;
@@ -32,8 +32,8 @@ extern "C"
 int gvcd_yuv2rgb(gpel_t *pYdata, gpel_t *pUdata, gpel_t *pVdata, uchar3 *OutData,
     int width, int height)
 {
-    dim3 grids((width + 15) >> 4, (height + 15) >> 4);
-    dim3 threads(16, 16);
+    dim3 grids((width + 63) >> 6, (height + 15) >> 4);
+    dim3 threads(64, 16);
 
     YUV2RGBConver << <grids, threads >> >(pYdata, pUdata, pVdata, OutData, width, height);
 

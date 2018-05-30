@@ -42,13 +42,13 @@ void get_img(void *args)
 
 int main(int argc, char* argv[])
 {
-    if ((infile = fopen("BasketballDrill_832x480_50.yuv", "rb")) == NULL){
+    if ((infile = fopen("F:/Seq/Cactus_1920x1080_50.yuv", "rb")) == NULL){
         printf("cannot open this file\n");
         return -1;
     }
 
-    int width = 832;
-    int height = 480;
+    int width = 1920;
+    int height = 1080;
     int img_size = width*height * sizeof(gpel_t) * 3 / 2;
     GlDisplay *display = new GlDisplay(&argc, argv, width, height);
     thread t(get_img, display);
