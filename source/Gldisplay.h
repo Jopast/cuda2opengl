@@ -28,6 +28,9 @@ public:
     }
     ~GlDisplay(){
     }
+    int get_size(){ return img_size; }
+    int get_width(){ return width; }
+    int get_height(){ return height; }
     void set_framerate(int value){ fps = value; }
     void start_display();
     void set_img(gpel_t *Y, gpel_t *U, gpel_t *V){
