@@ -59,10 +59,22 @@ void GlDisplay::drawFunc()
     cur_dis->m_t.notify_all();          //通知其余阻塞的使用者可以使用了
 }
 
+void GlDisplay::keyFunc(unsigned char key, int x, int y)
+{
+    switch (key){
+    case 27:
+        cudaGraphicsUnregisterResource(cur_dis->resource);
+        cur_dis->glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
+        cur_dis->glDeleteBuffers(1, &cur_dis->bufferObj);
+        exit(0);
+    }
+}
+
 void GlDisplay::start_display()
 {
     // step 4:  
     cudaGraphicsGLRegisterBuffer(&resource, bufferObj, cudaGraphicsMapFlagsNone);
+    //glutKeyboardFunc(keyFunc);
     glutDisplayFunc(drawFunc);
     timeFunc(fps);
     glutMainLoop();

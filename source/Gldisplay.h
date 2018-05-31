@@ -66,6 +66,7 @@ private:
     static GlDisplay *cur_dis;//防止静态函数不能访问非静态成员
     void Glinit(int *argc, char **argv, int w, int h);
     static void drawFunc();
+    static void keyFunc(unsigned char key, int x, int y);
     static void timeFunc(int value){
         cur_dis->drawFunc();
         // Timer: value ms

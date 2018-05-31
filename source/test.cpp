@@ -15,15 +15,14 @@ void get_img(void *args)
     c_buf = (gpel_t *)malloc(img_size);
     cudaMalloc((void **)&g_buf, img_size);
     while (true){
-        lock_guard<mutex> locker(display->mutex_lock);
-        while (!display->wait_img){                        //如果未获取到图像                
-            display->m_t.wait(display->mutex_lock);        //将当前线程阻塞，注意：此时会释放锁
-        }
-
         if (fread(c_buf, 1, img_size, infile) != img_size){
             // Loop
             fseek(infile, 0, SEEK_SET);
             fread(c_buf, 1, img_size, infile);
+        }
+        lock_guard<mutex> locker(display->mutex_lock);
+        while (!display->wait_img){                        //如果未获取到图像                
+            display->m_t.wait(display->mutex_lock);        //将当前线程阻塞，注意：此时会释放锁
         }
         cudaMemcpy(g_buf, c_buf, img_size, cudaMemcpyHostToDevice);
         gpel_t *Y = g_buf;
