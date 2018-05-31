@@ -54,7 +54,7 @@ void GlDisplay::keyFunc(unsigned char key, int x, int y)
     }
 }
 
-void GlDisplay::start_display()
+void GlDisplay::start_display(int num_device)
 {
     int argc = 1;
     char *argv[1];
@@ -64,15 +64,7 @@ void GlDisplay::start_display()
     glutInitWindowSize(width, height);
     glutCreateWindow("display window");
 
-    // step 2:  
-    //cudaDeviceProp prop;
-    //int dev;
-
-    //memset(&prop, 0, sizeof(cudaDeviceProp));
-    //prop.major = 1;
-    //prop.minor = 0;
-    //cudaChooseDevice(&dev, &prop);
-    cudaGLSetGLDevice(0); //默认为device 0
+    cudaGLSetGLDevice(num_device); //默认为device 0
 
     // step 3:  
     glBindBuffer = (PFNGLBINDBUFFERARBPROC)GET_PROC_ADDRESS("glBindBuffer");

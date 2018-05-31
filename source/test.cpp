@@ -43,7 +43,7 @@ void show_img(void *args)
 {
     GlDisplay *display = (GlDisplay *)args;
     display->set_framerate(20);
-    display->start_display();
+    display->start_display(0);
 }
 
 int main(int argc, char* argv[])
