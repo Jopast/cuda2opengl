@@ -29,7 +29,7 @@ void GlDisplay::drawFunc()
         cur_dis->m_t.wait(cur_dis->mutex_lock);        //将当前线程阻塞，注意：此时会释放锁
     }
     
-    uchar3* devPtr;
+    gpel3_t* devPtr;
     size_t size;
     cudaGraphicsMapResources(1, &cur_dis->resource, NULL);
     cudaGraphicsResourceGetMappedPointer((void**)&devPtr, &size, cur_dis->resource);

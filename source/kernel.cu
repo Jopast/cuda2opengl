@@ -4,7 +4,7 @@
 
 #define CAVS2_CLIP3(L, H, v)  min((H), max((v), (L)))
 
-__global__ void YUV2RGBConver(gpel_t *pYdata, gpel_t *pUdata, gpel_t *pVdata, uchar3 *OutData, int width, int height, int stride_y, int stride_uv)
+__global__ void YUV2RGBConver(gpel_t *pYdata, gpel_t *pUdata, gpel_t *pVdata, gpel3_t *OutData, int width, int height, int stride_y, int stride_uv)
 {
     const int x = blockIdx.x * blockDim.x + threadIdx.x;
     const int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -29,7 +29,7 @@ __global__ void YUV2RGBConver(gpel_t *pYdata, gpel_t *pUdata, gpel_t *pVdata, uc
 }
 
 extern "C"
-int gvcd_yuv2rgb(gpel_t *pYdata, gpel_t *pUdata, gpel_t *pVdata, uchar3 *OutData,
+int gvcd_yuv2rgb(gpel_t *pYdata, gpel_t *pUdata, gpel_t *pVdata, gpel3_t *OutData,
                  int width, int height, int stride_y, int stride_uv)
 {
     dim3 grids((width + 15) >> 4, (height + 15) >> 4);

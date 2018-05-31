@@ -48,7 +48,7 @@ void show_img(void *args)
 
 int main(int argc, char* argv[])
 {
-    if ((infile = fopen("F:/Seq/Cactus_1920x1080_50.yuv", "rb")) == NULL){
+    if ((infile = fopen("F:/Seq/tmzLargeMotion5_1920x1080_23fps.yuv", "rb")) == NULL){
         printf("cannot open this file\n");
         return -1;
     }

@@ -18,7 +18,7 @@ using namespace std;
 #ifdef __cplusplus
 extern "C" {    // only need to export C interface if used by C++ source code
 #endif
-    int gvcd_yuv2rgb(gpel_t *pYdata, gpel_t *pUdata, gpel_t *pVdata, uchar3 *OutData,
+    int gvcd_yuv2rgb(gpel_t *pYdata, gpel_t *pUdata, gpel_t *pVdata, gpel3_t *OutData,
                      int width, int height, int stride_y, int stride_uv);
 #ifdef __cplusplus
 }
@@ -37,7 +37,7 @@ public:
     int get_size(){ return img_size; }
     int get_width(){ return width; }
     int get_height(){ return height; }
-    void set_framerate(int value){ fps = value; }
+    void set_framerate(int value){ fps = 1000 / value; }
     void start_display(int num_device);
     void set_img(gpel_t *Y, gpel_t *U, gpel_t *V, int stride_y, int stride_uv){
         img_buf[0] = Y;
