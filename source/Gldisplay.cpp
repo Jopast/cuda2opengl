@@ -5,7 +5,7 @@
 
 GlDisplay* GlDisplay::cur_dis = NULL;//防止静态函数不能访问非静态成员
 
-void GlDisplay::Glinit(int w, int h)
+GlDisplay::GlDisplay(int w, int h)
 {
     width = w;
     height = h;

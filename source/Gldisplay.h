@@ -27,9 +27,7 @@ extern "C" {    // only need to export C interface if used by C++ source code
 class GlDisplay
 {
 public:
-    GlDisplay(int w, int h){
-        Glinit(w, h);
-    }
+    GlDisplay(int w, int h);
     ~GlDisplay();
 
     mutex mutex_lock;
@@ -64,7 +62,6 @@ private:
     gpel_t *img_buf[3];
 
     static GlDisplay *cur_dis;//防止静态函数不能访问非静态成员
-    void Glinit(int w, int h);
     static void drawFunc();
     static void keyFunc(unsigned char key, int x, int y);
     static void timeFunc(int value){
