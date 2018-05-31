@@ -34,7 +34,8 @@ void GlDisplay::drawFunc()
     cudaGraphicsMapResources(1, &cur_dis->resource, NULL);
     cudaGraphicsResourceGetMappedPointer((void**)&devPtr, &size, cur_dis->resource);
 
-    gvcd_yuv2rgb(cur_dis->img_buf[0], cur_dis->img_buf[1], cur_dis->img_buf[2], devPtr, cur_dis->width, cur_dis->height);
+    gvcd_yuv2rgb(cur_dis->img_buf[0], cur_dis->img_buf[1], cur_dis->img_buf[2], devPtr,
+                 cur_dis->width, cur_dis->height, cur_dis->stride[0], cur_dis->stride[1]);
 
     cudaGraphicsUnmapResources(1, &cur_dis->resource, NULL);
     glutSwapBuffers();

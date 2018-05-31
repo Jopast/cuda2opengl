@@ -28,7 +28,7 @@ void get_img(void *args)
         gpel_t *Y = g_buf;
         gpel_t *U = g_buf + width*height * sizeof(gpel_t);
         gpel_t *V = U + width*height * sizeof(gpel_t) / 4;
-        display->set_img(Y, U, V);
+        display->set_img(Y, U, V, width, width >> 1);
         cout << "aaa" << endl;
         display->wait_img = false;          //等待显示后再读取图像
         display->m_t.notify_all();          //通知其余阻塞的使用者可以使用了

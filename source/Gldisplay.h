@@ -18,8 +18,8 @@ using namespace std;
 #ifdef __cplusplus
 extern "C" {    // only need to export C interface if used by C++ source code
 #endif
-int gvcd_yuv2rgb(gpel_t *pYdata, gpel_t *pUdata, gpel_t *pVdata, uchar3 *OutData,
-    int width, int height);
+    int gvcd_yuv2rgb(gpel_t *pYdata, gpel_t *pUdata, gpel_t *pVdata, uchar3 *OutData,
+                     int width, int height, int stride_y, int stride_uv);
 #ifdef __cplusplus
 }
 #endif
@@ -41,10 +41,12 @@ public:
     int get_height(){ return height; }
     void set_framerate(int value){ fps = value; }
     void start_display(int num_device);
-    void set_img(gpel_t *Y, gpel_t *U, gpel_t *V){
+    void set_img(gpel_t *Y, gpel_t *U, gpel_t *V, int stride_y, int stride_uv){
         img_buf[0] = Y;
         img_buf[1] = U;
         img_buf[2] = V;
+        stride[0] = stride_y;
+        stride[1] = stride_uv;
     }
 private:
     PFNGLBINDBUFFERARBPROC    glBindBuffer;
@@ -56,6 +58,7 @@ private:
 
     int width;
     int height;
+    int stride[2];  //Í¼ÏñºáÏò¿ç¶È
     int img_size;
     int fps;
     gpel_t *img_buf[3];

@@ -2,17 +2,17 @@
 #include "device_launch_parameters.h"
 #include "defines.h"
 
-#define GVC_CLIP3(L, H, v)  min((H), max((v), (L)))
+#define CAVS2_CLIP3(L, H, v)  min((H), max((v), (L)))
 
-__global__ void YUV2RGBConver(gpel_t *pYdata, gpel_t *pUdata, gpel_t *pVdata, uchar3 *OutData, int width, int height)
+__global__ void YUV2RGBConver(gpel_t *pYdata, gpel_t *pUdata, gpel_t *pVdata, uchar3 *OutData, int width, int height, int stride_y, int stride_uv)
 {
     const int x = blockIdx.x * blockDim.x + threadIdx.x;
     const int y = blockIdx.y * blockDim.y + threadIdx.y;
 
     if (x < width && y < height){
         int Y, U, V;
-        int idx_y = (height - 1 - y) * width + x;
-        int idx_uv = ((height >> 1) - 1 - (y >> 1)) * (width >> 1) + (x >> 1);
+        int idx_y = (height - 1 - y) * stride_y + x;
+        int idx_uv = ((height >> 1) - 1 - (y >> 1)) * stride_uv + (x >> 1);
         int out_pos = y * width + x;
         Y = pYdata[idx_y];
         U = pUdata[idx_uv] - 128;
@@ -22,20 +22,20 @@ __global__ void YUV2RGBConver(gpel_t *pYdata, gpel_t *pUdata, gpel_t *pVdata, uc
         int G = Y - ((U * 88) >> 8) - ((V * 183) >> 8);
         int B = Y + U + ((U * 198) >> 8);
 
-        OutData[out_pos].x = GVC_CLIP3(0, 255, R);//R
-        OutData[out_pos].y = GVC_CLIP3(0, 255, G);//G
-        OutData[out_pos].z = GVC_CLIP3(0, 255, B);//B
+        OutData[out_pos].x = CAVS2_CLIP3(0, 255, R);//R
+        OutData[out_pos].y = CAVS2_CLIP3(0, 255, G);//G
+        OutData[out_pos].z = CAVS2_CLIP3(0, 255, B);//B
     }
 }
 
 extern "C"
 int gvcd_yuv2rgb(gpel_t *pYdata, gpel_t *pUdata, gpel_t *pVdata, uchar3 *OutData,
-    int width, int height)
+                 int width, int height, int stride_y, int stride_uv)
 {
-    dim3 grids((width + 63) >> 6, (height + 15) >> 4);
-    dim3 threads(64, 16);
+    dim3 grids((width + 15) >> 4, (height + 15) >> 4);
+    dim3 threads(16, 16);
 
-    YUV2RGBConver << <grids, threads >> >(pYdata, pUdata, pVdata, OutData, width, height);
+    YUV2RGBConver << <grids, threads >> >(pYdata, pUdata, pVdata, OutData, width, height, stride_y, stride_uv);
 
     return 0;
 }
