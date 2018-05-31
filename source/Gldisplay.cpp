@@ -5,36 +5,20 @@
 
 GlDisplay* GlDisplay::cur_dis = NULL;//防止静态函数不能访问非静态成员
 
-void GlDisplay::Glinit(int *argc, char **argv, int w, int h)
+void GlDisplay::Glinit(int w, int h)
 {
     width = w;
     height = h;
     img_size = w * h * 3;  //RGB
 
-                           // step 2:  
-                           //cudaDeviceProp prop;
-                           //int dev;
+    wait_img = true; //初始化无输入图像需要等待
+    cur_dis = this;
+}
 
-                           //memset(&prop, 0, sizeof(cudaDeviceProp));
-                           //prop.major = 1;
-                           //prop.minor = 0;
-                           //cudaChooseDevice(&dev, &prop);
-    cudaGLSetGLDevice(0); //默认为device 0
-
-    glutInit(argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-    glutInitWindowSize(w, h);
-    glutCreateWindow("display window");
-
-    // step 3:  
-    glBindBuffer = (PFNGLBINDBUFFERARBPROC)GET_PROC_ADDRESS("glBindBuffer");
-    glDeleteBuffers = (PFNGLDELETEBUFFERSARBPROC)GET_PROC_ADDRESS("glDeleteBuffers");
-    glGenBuffers = (PFNGLGENBUFFERSARBPROC)GET_PROC_ADDRESS("glGenBuffers");
-    glBufferData = (PFNGLBUFFERDATAARBPROC)GET_PROC_ADDRESS("glBufferData");
-
-    glGenBuffers(1, &bufferObj);
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, bufferObj);
-    glBufferData(GL_PIXEL_UNPACK_BUFFER_ARB, img_size, NULL, GL_DYNAMIC_DRAW_ARB);
+GlDisplay::~GlDisplay(){
+    cudaGraphicsUnregisterResource(resource);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
+    glDeleteBuffers(1, &bufferObj);
 }
 
 void GlDisplay::drawFunc()
@@ -72,6 +56,34 @@ void GlDisplay::keyFunc(unsigned char key, int x, int y)
 
 void GlDisplay::start_display()
 {
+    int argc = 1;
+    char *argv[1];
+    argv[0] = "display";
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitWindowSize(width, height);
+    glutCreateWindow("display window");
+
+    // step 2:  
+    //cudaDeviceProp prop;
+    //int dev;
+
+    //memset(&prop, 0, sizeof(cudaDeviceProp));
+    //prop.major = 1;
+    //prop.minor = 0;
+    //cudaChooseDevice(&dev, &prop);
+    cudaGLSetGLDevice(0); //默认为device 0
+
+    // step 3:  
+    glBindBuffer = (PFNGLBINDBUFFERARBPROC)GET_PROC_ADDRESS("glBindBuffer");
+    glDeleteBuffers = (PFNGLDELETEBUFFERSARBPROC)GET_PROC_ADDRESS("glDeleteBuffers");
+    glGenBuffers = (PFNGLGENBUFFERSARBPROC)GET_PROC_ADDRESS("glGenBuffers");
+    glBufferData = (PFNGLBUFFERDATAARBPROC)GET_PROC_ADDRESS("glBufferData");
+
+    glGenBuffers(1, &bufferObj);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, bufferObj);
+    glBufferData(GL_PIXEL_UNPACK_BUFFER_ARB, img_size, NULL, GL_DYNAMIC_DRAW_ARB);
+
     // step 4:  
     cudaGraphicsGLRegisterBuffer(&resource, bufferObj, cudaGraphicsMapFlagsNone);
     //glutKeyboardFunc(keyFunc);

@@ -39,21 +39,29 @@ void get_img(void *args)
     fclose(infile);
 }
 
+void show_img(void *args)
+{
+    GlDisplay *display = (GlDisplay *)args;
+    display->set_framerate(20);
+    display->start_display();
+}
+
 int main(int argc, char* argv[])
 {
     if ((infile = fopen("F:/Seq/Cactus_1920x1080_50.yuv", "rb")) == NULL){
         printf("cannot open this file\n");
         return -1;
     }
-
     int width = 1920;
     int height = 1080;
     int img_size = width*height * sizeof(gpel_t) * 3 / 2;
-    GlDisplay *display = new GlDisplay(&argc, argv, width, height);
+    GlDisplay *display = new GlDisplay(width, height);
     thread t(get_img, display);
     t.detach();
-    display->set_framerate(20);
-    display->start_display();
 
+    thread t1(show_img, display);
+    t1.detach();
+    //show_img(display);
+    getchar();
     return 0;
 }

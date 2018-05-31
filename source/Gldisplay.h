@@ -27,13 +27,10 @@ int gvcd_yuv2rgb(gpel_t *pYdata, gpel_t *pUdata, gpel_t *pVdata, uchar3 *OutData
 class GlDisplay
 {
 public:
-    GlDisplay(int *argc, char **argv, int w, int h){
-        Glinit(argc, argv, w, h);
-        wait_img = true;
-        cur_dis = this;
+    GlDisplay(int w, int h){
+        Glinit(w, h);
     }
-    ~GlDisplay(){
-    }
+    ~GlDisplay();
 
     mutex mutex_lock;
     condition_variable_any m_t;     //条件变量
@@ -43,7 +40,7 @@ public:
     int get_width(){ return width; }
     int get_height(){ return height; }
     void set_framerate(int value){ fps = value; }
-    void start_display();
+    void start_display(int num_device);
     void set_img(gpel_t *Y, gpel_t *U, gpel_t *V){
         img_buf[0] = Y;
         img_buf[1] = U;
@@ -64,7 +61,7 @@ private:
     gpel_t *img_buf[3];
 
     static GlDisplay *cur_dis;//防止静态函数不能访问非静态成员
-    void Glinit(int *argc, char **argv, int w, int h);
+    void Glinit(int w, int h);
     static void drawFunc();
     static void keyFunc(unsigned char key, int x, int y);
     static void timeFunc(int value){
